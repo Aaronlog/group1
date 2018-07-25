@@ -1,0 +1,73 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: ibm
+  Date: 2018/6/14
+  Time: 14:08
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Title</title>
+    <script type="text/javascript" src="js/jquery-1.8.1.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+
+</head>
+<body>
+<div id="container" style="width: 600px;height: 400px"></div>
+<script>
+
+    $.ajax({
+        type:"GET",
+        url:"barb.action",
+        dataType:"json",
+        success:function (data) {
+            myChart.hideLoading();
+            myChart.setOption({
+                series: [{
+                    data:data,
+                }]
+            })
+
+        },
+        error:function () {
+            alert("加载数据失败")
+        }
+    })
+
+    var option = {
+        title : {
+            text : 'ECharts饼状图：新闻数据访问量'
+        },
+        series : [ {
+            name : '访问量',
+            type : 'pie',
+            itemStyle : {
+                normal : {
+                    label : {
+                        show : true,
+//格式器
+                        formatter : '{b} : {c} ({d}%)'
+                    },
+                    labelLine : {
+                        show : true
+                    }
+                }
+            },
+            //设定图表的缩放比例
+            radius : '60%',
+//data中使用name代表圆饼中各小块的名称,value为对应的数值
+            data : []
+        } ]
+    };
+
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+
+    myChart.setOption(option, true);
+    myChart.showLoading();
+
+</script>
+
+</body>
+</html>

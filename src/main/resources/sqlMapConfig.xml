@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<!--这是Mybatis的配置文件-->
+<configuration>
+
+    <settings>
+        <!--开启懒加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--配合上列代码使用-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--开启二级缓存-->
+        <setting name="cacheEnabled" value="true"/>
+    </settings>
+
+    <!--给实体类起别名，默认是类名或类的首字母小写，给mapper.xml映射文件使用，例如：parameterType="类名"-->
+    <typeAliases>
+        <package name="com.offcn.bean"></package>
+    </typeAliases>
+
+
+</configuration>

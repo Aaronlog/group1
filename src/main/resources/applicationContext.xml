@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+    <!--开启注解模式-->
+    <context:annotation-config></context:annotation-config>
+
+    <!--标明不会去扫描带有Controller的类-->
+    <context:component-scan base-package="com.offcn">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+    </context:component-scan>
+
+
+    <!--扫描配置文件-->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!-- 数据库连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}" />
+        <property name="jdbcUrl" value="${jdbc.url}" />
+        <property name="user" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+
+
+
+
+
+    <!-- 配置多媒体文件解析器 -->
+    <bean id="multipartResolver" class=
+            "org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 设置上传文件的最大尺寸为5MB -->
+        <property name="maxUploadSize">
+            <value>5242880</value>
+        </property>
+    </bean>
+
+
+
+
+    <!--Mybatis的SqlsessionFactory的属性配置-->
+    <bean name="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:sqlMapConfig.xml"></property>
+        <!--特殊情况，mapper.xml和mapper接口不在同一包中,使用下列代码-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+    </bean>
+    <!--扫描mapper接口和接口对应的mapper.xml-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.offcn.mapper"></property>
+    </bean>
+
+
+
+    <!--声明数据库的事务管理工具类-->
+    <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--事务的配置通知-->
+    <tx:advice id="myadvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="save*" propagation="REQUIRED" isolation="READ_COMMITTED" read-only="false" />
+            <tx:method name="delete*" propagation="REQUIRED" isolation="READ_COMMITTED" read-only="false" />
+            <tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED" read-only="false" />
+            <tx:method name="get*" propagation="REQUIRED" isolation="READ_COMMITTED" read-only="false" />
+            <tx:method name="load*" propagation="REQUIRED" isolation="READ_COMMITTED" read-only="false" />
+        </tx:attributes>
+    </tx:advice>
+
+
+    <!--Sprimg的重点AOP,面向切面，在进行数据库的IO操作时给加上事务-->
+    <aop:config>
+        <aop:pointcut id="mypoint" expression="execution(* com.offcn.service.serviceimpl.*.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="myadvice" pointcut-ref="mypoint"></aop:advisor>
+    </aop:config>
+
+</beans>
